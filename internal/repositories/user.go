@@ -11,6 +11,8 @@ import (
 type UserRepository interface {
 	Create(user *entity.User) error
 	FindById(id entityId.ID) (*entity.User, error)
+	Update(user *entity.User) error
+	Delete(id entityId.ID) error
 }
 
 type User struct {
