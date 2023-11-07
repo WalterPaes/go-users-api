@@ -1,15 +1,19 @@
 package errors
 
+import "fmt"
+
 type CustomError struct {
-	err error
+	title string
+	err   error
 }
 
-func NewCustomError(e error) *CustomError {
+func New(title string, e error) *CustomError {
 	return &CustomError{
-		err: e,
+		title: title,
+		err:   e,
 	}
 }
 
 func (e *CustomError) Error() string {
-	return e.err.Error()
+	return fmt.Sprintf("[%s]: %s", e.title, e.err.Error())
 }

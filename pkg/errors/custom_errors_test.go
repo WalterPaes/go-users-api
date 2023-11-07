@@ -7,7 +7,8 @@ import (
 
 func TestCustomError_Error(t *testing.T) {
 	type fields struct {
-		err error
+		title string
+		err   error
 	}
 	tests := []struct {
 		name   string
@@ -17,14 +18,15 @@ func TestCustomError_Error(t *testing.T) {
 		{
 			name: "Should create a custom error",
 			fields: fields{
-				err: errors.New("error"),
+				title: "Erro",
+				err:   errors.New("error"),
 			},
-			want: "error",
+			want: "[Erro]: error",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := NewCustomError(tt.fields.err)
+			e := New(tt.fields.title, tt.fields.err)
 			if got := e.Error(); got != tt.want {
 				t.Errorf("CustomError.Error() = %v, want %v", got, tt.want)
 			}
