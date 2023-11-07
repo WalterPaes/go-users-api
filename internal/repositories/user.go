@@ -31,11 +31,37 @@ func (r *User) Create(user *entity.User) error {
 	return nil
 }
 
+func (r *User) Update(user *entity.User) error {
+	_, err := r.FindById(user.ID)
+	if err != nil {
+		return err
+	}
+
+	result := r.dbConn.Save(user)
+	if result.Error != nil {
+		return fmt.Errorf("[User Repository Error] %s", result.Error.Error())
+	}
+	return nil
+}
+
 func (r *User) FindById(id entityId.ID) (*entity.User, error) {
 	var user *entity.User
-	result := r.dbConn.Find(&user, "id = ?", id.String())
+	result := r.dbConn.First(&user, "id = ?", id.String())
 	if result.Error != nil {
 		return nil, fmt.Errorf("[User Repository Error] %s", result.Error.Error())
 	}
 	return user, nil
+}
+
+func (r *User) Delete(id entityId.ID) error {
+	user, err := r.FindById(id)
+	if err != nil {
+		return err
+	}
+
+	result := r.dbConn.Delete(user)
+	if result.Error != nil {
+		return fmt.Errorf("[User Repository Error] %s", result.Error.Error())
+	}
+	return nil
 }
