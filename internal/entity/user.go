@@ -1,8 +1,6 @@
 package entity
 
 import (
-	"fmt"
-
 	"github.com/WalterPaes/go-users-api/pkg/entity"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -30,6 +28,5 @@ func NewUser(name, email, password string) (*User, error) {
 
 func (u User) ValidatePassword(password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
-	fmt.Println(err, u.Password, password)
 	return err == nil
 }
