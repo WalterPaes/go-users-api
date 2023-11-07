@@ -19,12 +19,6 @@ import (
 
 var (
 	recorder = httptest.NewRecorder()
-
-	userCreateInput = dtos.CreateUserInput{
-		Name:     "Test",
-		Email:    "j@j.com",
-		Password: "123456",
-	}
 )
 
 func mockDatabase(t *testing.T) *gorm.DB {
@@ -52,7 +46,7 @@ func TestUserHandler_CreateUser(t *testing.T) {
 		wantStatus int
 	}{
 		{
-			name: "Success",
+			name: "Should create an user",
 			fields: fields{
 				repository: repositories.NewUserRepository(mockDatabase(t)),
 			},
@@ -60,7 +54,11 @@ func TestUserHandler_CreateUser(t *testing.T) {
 				c: func(w *httptest.ResponseRecorder) *gin.Context {
 					c, _ := gin.CreateTestContext(w)
 
-					jsonBytes, _ := json.Marshal(userCreateInput)
+					jsonBytes, _ := json.Marshal(dtos.CreateUserInput{
+						Name:     "Test",
+						Email:    "j@j.com",
+						Password: "123456",
+					})
 
 					c.Request = &http.Request{
 						Method: http.MethodPost,
@@ -72,6 +70,28 @@ func TestUserHandler_CreateUser(t *testing.T) {
 				w: recorder,
 			},
 			wantStatus: http.StatusCreated,
+		},
+		{
+			name: "Should has validation error",
+			fields: fields{
+				repository: repositories.NewUserRepository(mockDatabase(t)),
+			},
+			args: args{
+				c: func(w *httptest.ResponseRecorder) *gin.Context {
+					c, _ := gin.CreateTestContext(w)
+
+					jsonBytes, _ := json.Marshal(dtos.CreateUserInput{})
+
+					c.Request = &http.Request{
+						Method: http.MethodPost,
+						Body:   io.NopCloser(bytes.NewBuffer(jsonBytes)),
+					}
+
+					return c
+				}(recorder),
+				w: recorder,
+			},
+			wantStatus: http.StatusBadRequest,
 		},
 	}
 	for _, tt := range tests {

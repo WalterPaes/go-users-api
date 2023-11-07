@@ -30,13 +30,13 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 
 	user, err := entity.NewUser(userDto.Name, userDto.Email, userDto.Password)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	err = h.repository.Create(user)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
