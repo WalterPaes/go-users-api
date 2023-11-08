@@ -28,6 +28,34 @@ func TestUserRepository(t *testing.T) {
 		}
 	})
 
+	t.Run("Should find all users without pagination", func(t *testing.T) {
+		users, err := r.FindAll(0, 0)
+		if err != nil {
+			t.Errorf("User.FindAll() error = %v", err)
+		}
+
+		assert.NotNil(t, users)
+		assert.Greater(t, len(users), 0)
+		assert.Equal(t, users[0].ID.String(), user.ID.String())
+	})
+
+	t.Run("Should find all users with pagination", func(t *testing.T) {
+		user2, _ := entity.NewUser("Teste", "email@email.com", "123456")
+		err := r.Create(user2)
+		if err != nil {
+			t.Errorf("User.Create() error = %v", err)
+		}
+
+		users, err := r.FindAll(2, 1)
+		if err != nil {
+			t.Errorf("User.FindAll() error = %v", err)
+		}
+
+		assert.NotNil(t, users)
+		assert.Greater(t, len(users), 0)
+		assert.Equal(t, users[0].ID.String(), user2.ID.String())
+	})
+
 	t.Run("Should find an user by id", func(t *testing.T) {
 		result, err := r.FindById(user.ID)
 		if err != nil {

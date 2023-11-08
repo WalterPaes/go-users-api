@@ -29,6 +29,8 @@ func main() {
 
 	r.POST("/users", userHandler.CreateUser)
 	r.GET("/users/:id", userHandler.FindUserById)
+	r.PUT("/users/:id", userHandler.UpdateUser)
+	r.DELETE("/users/:id", userHandler.Delete)
 
 	r.Run(":8001")
 }

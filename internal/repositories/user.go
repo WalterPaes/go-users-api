@@ -8,8 +8,9 @@ import (
 )
 
 type UserRepository interface {
-	Create(user *entity.User) error
+	FindAll(page, limit int) ([]entity.User, error)
 	FindById(id entityId.ID) (*entity.User, error)
+	Create(user *entity.User) error
 	Update(user *entity.User) error
 	Delete(id entityId.ID) error
 }
@@ -22,6 +23,27 @@ func NewUserRepository(db *gorm.DB) *User {
 	return &User{
 		dbConn: db,
 	}
+}
+
+func (r *User) FindAll(page, limit int) ([]entity.User, error) {
+	var users []entity.User
+	var err error
+
+	if page != 0 && limit != 0 {
+		err = r.dbConn.Limit(limit).Offset((page - 1) * limit).Find(&users).Error
+	} else {
+		err = r.dbConn.Find(&users).Error
+	}
+	return users, err
+}
+
+func (r *User) FindById(id entityId.ID) (*entity.User, error) {
+	var user *entity.User
+	result := r.dbConn.First(&user, "id = ?", id.String())
+	if result.Error != nil {
+		return nil, customError.New("UserRepositoryError::FindById", result.Error)
+	}
+	return user, nil
 }
 
 func (r *User) Create(user *entity.User) error {
@@ -43,15 +65,6 @@ func (r *User) Update(user *entity.User) error {
 		return customError.New("UserRepositoryError::Update", result.Error)
 	}
 	return nil
-}
-
-func (r *User) FindById(id entityId.ID) (*entity.User, error) {
-	var user *entity.User
-	result := r.dbConn.First(&user, "id = ?", id.String())
-	if result.Error != nil {
-		return nil, customError.New("UserRepositoryError::FindById", result.Error)
-	}
-	return user, nil
 }
 
 func (r *User) Delete(id entityId.ID) error {

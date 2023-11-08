@@ -21,6 +21,24 @@ func NewUserHandler(r repositories.UserRepository) *UserHandler {
 	}
 }
 
+func (h *UserHandler) FindUserById(c *gin.Context) {
+	id := c.Param("id")
+
+	uuid, err := entityId.ParseID(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	user, err := h.repository.FindById(uuid)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{})
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
+}
+
 func (h *UserHandler) CreateUser(c *gin.Context) {
 	var userDto dtos.CreateUserInput
 
@@ -42,24 +60,6 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, user)
-}
-
-func (h *UserHandler) FindUserById(c *gin.Context) {
-	id := c.Param("id")
-
-	uuid, err := entityId.ParseID(id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
-		return
-	}
-
-	user, err := h.repository.FindById(uuid)
-	if err != nil {
-		c.JSON(http.StatusNotFound, nil)
-		return
-	}
-
-	c.JSON(http.StatusOK, user)
 }
 
 func (h *UserHandler) UpdateUser(c *gin.Context) {
@@ -112,5 +112,5 @@ func (h *UserHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, nil)
+	c.JSON(http.StatusOK, gin.H{})
 }
