@@ -4,6 +4,7 @@ import (
 	"github.com/WalterPaes/go-users-api/internal/entity"
 	"github.com/WalterPaes/go-users-api/internal/handlers"
 	"github.com/WalterPaes/go-users-api/internal/repositories"
+	"github.com/WalterPaes/go-users-api/pkg/middlewares"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -25,13 +26,18 @@ func main() {
 		})
 	})
 
+	loginHandler := handlers.NewLoginHandler(repositories.NewUserRepository(db))
 	userHandler := handlers.NewUserHandler(repositories.NewUserRepository(db))
 
-	r.GET("/users", userHandler.FindAll)
-	r.GET("/users/:id", userHandler.FindUserById)
-	r.POST("/users", userHandler.CreateUser)
-	r.PUT("/users/:id", userHandler.UpdateUser)
-	r.DELETE("/users/:id", userHandler.Delete)
+	users := r.Group("/users")
+	users.Use(middlewares.JwtAuthMiddleware())
+	users.GET("/", userHandler.FindAll)
+	users.GET("/:id", userHandler.FindUserById)
+	users.POST("/", userHandler.CreateUser)
+	users.PUT("/:id", userHandler.UpdateUser)
+	users.DELETE("/:id", userHandler.Delete)
+
+	r.POST("/login", loginHandler.Login)
 
 	r.Run(":8001")
 }

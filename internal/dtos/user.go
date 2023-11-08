@@ -19,3 +19,8 @@ type UsersListOutput struct {
 	Page    int           `json:"page"`
 	PerPage int           `json:"per_page"`
 }
+
+type LoginInput struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=6"`
+}

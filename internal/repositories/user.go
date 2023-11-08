@@ -10,7 +10,7 @@ import (
 type UserRepository interface {
 	FindAll(page, limit int) ([]entity.User, error)
 	FindById(id entityId.ID) (*entity.User, error)
-	FindByEmail(u *entity.User) (*entity.User, error)
+	FindByEmail(email string) (*entity.User, error)
 	Create(user *entity.User) error
 	Update(user *entity.User) error
 	Delete(id entityId.ID) error
@@ -41,9 +41,9 @@ func (r *User) FindById(id entityId.ID) (*entity.User, error) {
 	return user, nil
 }
 
-func (r *User) FindByEmail(u *entity.User) (*entity.User, error) {
+func (r *User) FindByEmail(email string) (*entity.User, error) {
 	var user *entity.User
-	result := r.dbConn.First(&user, "email = ?", u.Email)
+	result := r.dbConn.First(&user, "email = ?", email)
 	if result.Error != nil {
 		return nil, customError.New("UserRepositoryError::FindByEmail", result.Error)
 	}
