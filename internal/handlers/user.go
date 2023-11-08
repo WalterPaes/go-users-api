@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/WalterPaes/go-users-api/internal/dtos"
 	"github.com/WalterPaes/go-users-api/internal/entity"
@@ -19,6 +21,42 @@ func NewUserHandler(r repositories.UserRepository) *UserHandler {
 	return &UserHandler{
 		repository: r,
 	}
+}
+
+func (h *UserHandler) FindAll(c *gin.Context) {
+	var err error
+	page := c.Param("page")
+	perPage := c.Param("perPage")
+	pageInt := 1
+	perPageInt := 10
+
+	if page != "" {
+		pageInt, err = strconv.Atoi(page)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, customErrors.New("Query Param Error", errors.New("'page' must be a valid int number")))
+			return
+		}
+	}
+
+	if perPage != "" {
+		perPageInt, err = strconv.Atoi(perPage)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, customErrors.New("Query Param Error", errors.New("'per_page' must be a valid int number")))
+			return
+		}
+	}
+
+	users, err := h.repository.FindAll(pageInt, perPageInt)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{})
+		return
+	}
+
+	c.JSON(http.StatusOK, dtos.UsersListOutput{
+		Users:   users,
+		Page:    pageInt,
+		PerPage: perPageInt,
+	})
 }
 
 func (h *UserHandler) FindUserById(c *gin.Context) {
@@ -112,5 +150,5 @@ func (h *UserHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{})
+	c.JSON(http.StatusNoContent, gin.H{})
 }

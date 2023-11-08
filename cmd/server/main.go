@@ -27,8 +27,9 @@ func main() {
 
 	userHandler := handlers.NewUserHandler(repositories.NewUserRepository(db))
 
-	r.POST("/users", userHandler.CreateUser)
+	r.GET("/users", userHandler.FindAll)
 	r.GET("/users/:id", userHandler.FindUserById)
+	r.POST("/users", userHandler.CreateUser)
 	r.PUT("/users/:id", userHandler.UpdateUser)
 	r.DELETE("/users/:id", userHandler.Delete)
 

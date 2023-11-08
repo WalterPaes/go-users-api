@@ -1,5 +1,7 @@
 package dtos
 
+import "github.com/WalterPaes/go-users-api/internal/entity"
+
 type CreateUserInput struct {
 	Name     string `json:"name" binding:"required"`
 	Email    string `json:"email" binding:"required,email"`
@@ -10,4 +12,10 @@ type UpdateUserInput struct {
 	Name     string `json:"name" binding:"omitempty"`
 	Email    string `json:"email" binding:"omitempty"`
 	Password string `json:"password" binding:"omitempty,min=6"`
+}
+
+type UsersListOutput struct {
+	Users   []entity.User `json:"users"`
+	Page    int           `json:"page"`
+	PerPage int           `json:"per_page"`
 }

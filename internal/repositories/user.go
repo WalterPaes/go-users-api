@@ -27,13 +27,7 @@ func NewUserRepository(db *gorm.DB) *User {
 
 func (r *User) FindAll(page, limit int) ([]entity.User, error) {
 	var users []entity.User
-	var err error
-
-	if page != 0 && limit != 0 {
-		err = r.dbConn.Limit(limit).Offset((page - 1) * limit).Find(&users).Error
-	} else {
-		err = r.dbConn.Find(&users).Error
-	}
+	err := r.dbConn.Limit(limit).Offset((page - 1) * limit).Find(&users).Error
 	return users, err
 }
 
