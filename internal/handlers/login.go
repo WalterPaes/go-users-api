@@ -6,17 +6,19 @@ import (
 	"github.com/WalterPaes/go-users-api/internal/dtos"
 	"github.com/WalterPaes/go-users-api/internal/repositories"
 	customErrors "github.com/WalterPaes/go-users-api/pkg/errors"
-	jwtAuth "github.com/WalterPaes/go-users-api/pkg/jwt"
+	"github.com/WalterPaes/go-users-api/pkg/jwt"
 	"github.com/gin-gonic/gin"
 )
 
 type LoginHandler struct {
 	repository repositories.UserRepository
+	jwtAuth    *jwt.Auth
 }
 
-func NewLoginHandler(r repositories.UserRepository) *LoginHandler {
+func NewLoginHandler(r repositories.UserRepository, jwtAuth *jwt.Auth) *LoginHandler {
 	return &LoginHandler{
 		repository: r,
+		jwtAuth:    jwtAuth,
 	}
 }
 
@@ -39,7 +41,7 @@ func (h *LoginHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := jwtAuth.GenerateToken(map[string]string{
+	token, err := h.jwtAuth.GenerateToken(map[string]string{
 		"id":       user.ID.String(),
 		"username": user.Name,
 		"email":    user.Email,

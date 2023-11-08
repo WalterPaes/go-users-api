@@ -8,13 +8,25 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-func GenerateToken(data map[string]string) (string, error) {
+type Auth struct {
+	secret           []byte
+	expiresInMinutes int
+}
+
+func NewAuth(secret string, expiresInMinutes int) *Auth {
+	return &Auth{
+		secret:           []byte(secret),
+		expiresInMinutes: expiresInMinutes,
+	}
+}
+
+func (a *Auth) GenerateToken(data map[string]string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"exp": time.Now().Add(10 * time.Minute).Unix(),
+		"exp": time.Now().Add(time.Duration(a.expiresInMinutes) * time.Minute).Unix(),
 		"sub": data,
 	})
 
-	tokenString, err := token.SignedString([]byte("secret"))
+	tokenString, err := token.SignedString(a.secret)
 	if err != nil {
 		return "", customErrors.New("JWT AUTH ERROR", err)
 	}
@@ -22,9 +34,9 @@ func GenerateToken(data map[string]string) (string, error) {
 	return tokenString, nil
 }
 
-func ValidateToken(tokenString string) bool {
+func (a *Auth) ValidateToken(tokenString string) bool {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
-		return []byte("secret"), nil
+		return a.secret, nil
 	})
 	if err != nil {
 		log.Println(customErrors.New("JWT AUTH ERROR", err))

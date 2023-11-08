@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func JwtAuthMiddleware() gin.HandlerFunc {
+func JwtAuthMiddleware(jwtAuth *jwt.Auth) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var tokenString string
 
@@ -17,7 +17,7 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 			tokenString = strings.Split(bearerToken, " ")[1]
 		}
 
-		isValid := jwt.ValidateToken(tokenString)
+		isValid := jwtAuth.ValidateToken(tokenString)
 		if !isValid {
 			c.String(http.StatusUnauthorized, "Unauthorized")
 			c.Abort()
