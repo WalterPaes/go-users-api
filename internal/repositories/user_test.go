@@ -51,6 +51,18 @@ func TestUserRepository(t *testing.T) {
 		assert.True(t, result.ValidatePassword("123456"))
 	})
 
+	t.Run("Should find an user by email", func(t *testing.T) {
+		result, err := r.FindByEmail(user)
+		if err != nil {
+			t.Errorf("User.FindByEmail() error = %v", err)
+		}
+
+		assert.Equal(t, user.ID, result.ID)
+		assert.Equal(t, user.Name, result.Name)
+		assert.Equal(t, user.Email, result.Email)
+		assert.True(t, result.ValidatePassword("123456"))
+	})
+
 	newUser := &entity.User{
 		ID:    user.ID,
 		Name:  "Editado",
