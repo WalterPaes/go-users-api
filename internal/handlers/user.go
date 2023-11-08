@@ -7,6 +7,7 @@ import (
 	"github.com/WalterPaes/go-users-api/internal/entity"
 	"github.com/WalterPaes/go-users-api/internal/repositories"
 	entityId "github.com/WalterPaes/go-users-api/pkg/entity"
+	customErrors "github.com/WalterPaes/go-users-api/pkg/errors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,19 +25,19 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	var userDto dtos.CreateUserInput
 
 	if err := c.ShouldBindJSON(&userDto); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, customErrors.NewValidationErrors(err))
 		return
 	}
 
 	user, err := entity.NewUser(userDto.Name, userDto.Email, userDto.Password)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
 	err = h.repository.Create(user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 

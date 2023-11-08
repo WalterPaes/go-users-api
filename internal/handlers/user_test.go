@@ -17,10 +17,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	recorder = httptest.NewRecorder()
-)
-
 func mockDatabase(t *testing.T) *gorm.DB {
 	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
 	if err != nil {
@@ -32,74 +28,41 @@ func mockDatabase(t *testing.T) *gorm.DB {
 }
 
 func TestUserHandler_CreateUser(t *testing.T) {
-	type fields struct {
-		repository repositories.UserRepository
-	}
-	type args struct {
-		c *gin.Context
-		w *httptest.ResponseRecorder
-	}
-	tests := []struct {
-		name       string
-		fields     fields
-		args       args
-		wantStatus int
-	}{
-		{
-			name: "Should create an user",
-			fields: fields{
-				repository: repositories.NewUserRepository(mockDatabase(t)),
-			},
-			args: args{
-				c: func(w *httptest.ResponseRecorder) *gin.Context {
-					c, _ := gin.CreateTestContext(w)
+	t.Run("Should create an user", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
 
-					jsonBytes, _ := json.Marshal(dtos.CreateUserInput{
-						Name:     "Test",
-						Email:    "j@j.com",
-						Password: "123456",
-					})
-
-					c.Request = &http.Request{
-						Method: http.MethodPost,
-						Body:   io.NopCloser(bytes.NewBuffer(jsonBytes)),
-					}
-
-					return c
-				}(recorder),
-				w: recorder,
-			},
-			wantStatus: http.StatusCreated,
-		},
-		{
-			name: "Should has validation error",
-			fields: fields{
-				repository: repositories.NewUserRepository(mockDatabase(t)),
-			},
-			args: args{
-				c: func(w *httptest.ResponseRecorder) *gin.Context {
-					c, _ := gin.CreateTestContext(w)
-
-					jsonBytes, _ := json.Marshal(dtos.CreateUserInput{})
-
-					c.Request = &http.Request{
-						Method: http.MethodPost,
-						Body:   io.NopCloser(bytes.NewBuffer(jsonBytes)),
-					}
-
-					return c
-				}(recorder),
-				w: recorder,
-			},
-			wantStatus: http.StatusBadRequest,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			h := NewUserHandler(tt.fields.repository)
-			h.CreateUser(tt.args.c)
-
-			assert.Equal(t, tt.wantStatus, tt.args.w.Code)
+		jsonBytes, _ := json.Marshal(dtos.CreateUserInput{
+			Name:     "Test",
+			Email:    "j@j.com",
+			Password: "123456",
 		})
-	}
+
+		c.Request = &http.Request{
+			Method: http.MethodPost,
+			Body:   io.NopCloser(bytes.NewBuffer(jsonBytes)),
+		}
+
+		h := NewUserHandler(repositories.NewUserRepository(mockDatabase(t)))
+		h.CreateUser(c)
+
+		assert.Equal(t, http.StatusCreated, w.Code)
+	})
+
+	t.Run("Should has validation errors", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+
+		jsonBytes, _ := json.Marshal(dtos.CreateUserInput{})
+
+		c.Request = &http.Request{
+			Method: http.MethodPost,
+			Body:   io.NopCloser(bytes.NewBuffer(jsonBytes)),
+		}
+
+		h := NewUserHandler(repositories.NewUserRepository(mockDatabase(t)))
+		h.CreateUser(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
 }
