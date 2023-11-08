@@ -49,7 +49,7 @@ func (h *UserHandler) FindUserById(c *gin.Context) {
 
 	uuid, err := entityId.ParseID(id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, err)
 		return
 	}
 
@@ -67,13 +67,13 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 
 	uuid, err := entityId.ParseID(id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, err)
 		return
 	}
 
 	var userDto dtos.UpdateUserInput
 	if err := c.ShouldBindJSON(&userDto); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, customErrors.NewValidationErrors(err))
 		return
 	}
 
@@ -84,13 +84,13 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 		Password: userDto.Password,
 	}
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, err)
 		return
 	}
 
 	err = h.repository.Update(user)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, err)
 		return
 	}
 
@@ -102,13 +102,13 @@ func (h *UserHandler) Delete(c *gin.Context) {
 
 	uuid, err := entityId.ParseID(id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, err)
 		return
 	}
 
 	err = h.repository.Delete(uuid)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, nil)
+		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
