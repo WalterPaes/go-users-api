@@ -7,19 +7,19 @@ import (
 )
 
 type ValidationErrors struct {
-	Errors []validationError `json:"errors"`
+	Errors []ValidationError `json:"errors"`
 }
 
-type validationError struct {
+type ValidationError struct {
 	Key   string `json:"key"`
 	Error string `json:"error"`
 }
 
 func NewValidationErrors(err error) error {
-	var errs []validationError
+	var errs []ValidationError
 
 	for _, err := range err.(validator.ValidationErrors) {
-		errs = append(errs, validationError{
+		errs = append(errs, ValidationError{
 			Key:   err.Field(),
 			Error: fmt.Sprintf("field validation for '%s' failed on the '%s' tag", err.Field(), err.Tag()),
 		})

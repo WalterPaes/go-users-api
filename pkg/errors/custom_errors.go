@@ -3,17 +3,15 @@ package errors
 import "fmt"
 
 type CustomError struct {
-	title string
-	err   error
+	Message string `json:"error"`
 }
 
 func New(title string, e error) *CustomError {
 	return &CustomError{
-		title: title,
-		err:   e,
+		Message: fmt.Sprintf("[%s]: %s", title, e.Error()),
 	}
 }
 
 func (e *CustomError) Error() string {
-	return fmt.Sprintf("[%s]: %s", e.title, e.err.Error())
+	return e.Message
 }

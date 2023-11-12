@@ -12,8 +12,20 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+
+	docs "github.com/WalterPaes/go-users-api/docs"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @title Go User's API
+// @version 1.0
+// @description User API with authentication
+// @host localhost:8001
+// @BasePath /
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	cfg := config.Load()
 
@@ -30,6 +42,7 @@ func main() {
 	userHandler := handlers.NewUserHandler(repositories.NewUserRepository(db))
 
 	r := gin.Default()
+
 	r.POST("/login", loginHandler.Login)
 
 	users := r.Group("/users")
@@ -40,5 +53,7 @@ func main() {
 	users.PUT("/:id", userHandler.UpdateUser)
 	users.DELETE("/:id", userHandler.Delete)
 
+	docs.SwaggerInfo.BasePath = "/"
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.Run(cfg.AppPort)
 }

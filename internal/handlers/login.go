@@ -22,6 +22,18 @@ func NewLoginHandler(r repositories.UserRepository, jwtAuth *jwt.Auth) *LoginHan
 	}
 }
 
+// User Login godoc
+// @Summary Login an user
+// @Description Login an user
+// @Tags login
+// @Accept json
+// @Produce json
+// @Param request body dtos.LoginInput true "Login Request"
+// @Success 200 {object} dtos.JWTTokenOutput
+// @Failure 400 {array} errors.ValidationError
+// @Failure 401
+// @Failure 404 {object} errors.CustomError
+// @Router /login [post]
 func (h *LoginHandler) Login(c *gin.Context) {
 	var loginDto dtos.LoginInput
 
@@ -32,7 +44,7 @@ func (h *LoginHandler) Login(c *gin.Context) {
 
 	user, err := h.repository.FindByEmail(loginDto.Email)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, err)
+		c.JSON(http.StatusNotFound, err)
 		return
 	}
 
@@ -50,7 +62,5 @@ func (h *LoginHandler) Login(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, err)
 	}
 
-	c.JSON(http.StatusOK, map[string]string{
-		"token": token,
-	})
+	c.JSON(http.StatusOK, dtos.JWTTokenOutput{Token: token})
 }
