@@ -8,7 +8,9 @@ import (
 )
 
 func TestJwtAuth(t *testing.T) {
-	token, err := jwt.GenerateToken(map[string]string{
+	jwtAuth := jwt.NewAuth("secret", 10)
+
+	token, err := jwtAuth.GenerateToken(map[string]string{
 		"name":  "Teste",
 		"email": "test@email.com",
 	})
@@ -17,7 +19,7 @@ func TestJwtAuth(t *testing.T) {
 		t.Error(err)
 	}
 
-	isValid := jwt.ValidateToken(token)
+	isValid := jwtAuth.ValidateToken(token)
 
 	assert.True(t, isValid)
 }

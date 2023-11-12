@@ -52,7 +52,7 @@ func TestUserRepository(t *testing.T) {
 	})
 
 	t.Run("Should find an user by email", func(t *testing.T) {
-		result, err := r.FindByEmail(user)
+		result, err := r.FindByEmail(user.Email)
 		if err != nil {
 			t.Errorf("User.FindByEmail() error = %v", err)
 		}
